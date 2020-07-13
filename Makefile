@@ -36,7 +36,7 @@ ${CPPOBJ} : ${BUILDFILES}/%.o : ${SRCDIR}/%.cpp
 	${CC} ${FLAGS} -c $< -o $@
 
 upload : all
-	./setup_ports.sh 
+	./setup_ports.sh
     
 clean :
 	rm -r ${HEXFILE} ${BUILDFILES}
