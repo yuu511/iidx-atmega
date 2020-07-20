@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#Arduino_LLC_Arduino_Leonardo"
+
 echo "Please reset Arduino Leo."
 
 while :
@@ -11,7 +13,7 @@ do
         [[ "$devname" == "bus/"* ]] && exit
         eval "$(udevadm info -q property --export -p $syspath)"
         [[ -z "$ID_SERIAL" ]] && exit
-        if [ $ID_SERIAL = "Arduino_LLC_Arduino_Leonardo" ]; then
+        if [ $ID_SERIAL = "Arduino SA Arduino Leonardo" ]; then
           avrdude -pm32u4 -cavr109 -F -D -P/dev/$devname -Uflash:w:iidx.hex && exit
         fi
       )
