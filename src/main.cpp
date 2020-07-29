@@ -2,38 +2,29 @@
 #include <util/delay.h>
 #include "iidx_state.h"
 
-uint16_t button_state = 0;
+typedef struct {
+  uint16_t button_state;
+  uint8_t  tt_state;
+} input_state;
 
-#define DEFINE_PIN_AS_OUTPUT(DeviceName,PortNum,PinNum) inline void ConfigureOutput##DeviceName() { DDR##PortNum |=  ( 1 << DD##PortNum##PinNum ); } \
-                                                        inline bool CheckHigh##DeviceName() { return (PIN##PortNum & ( 1 << PIN##PortNum##PinNum )); } \
-                                                        inline void DriveHigh##DeviceName()  { PORT##PortNum |= ( 1 << PORT##PortNum##PinNum );  } \
-                                                        inline void DriveLow##DeviceName()   { PORT##PortNum &= ~( 1 << PORT##PortNum##PinNum );  } 
+#define IN_PIN_PULLUP(PortNum,PinNum) \
+  DDR##PortNum &= ~( 1 << DD##PortNum##PinNum ); \
+  PORT##PortNum |= ( 1 << PORT##PortNum##PinNum) ; \
 
-
-#define DEFINE_PIN_AS_INPUT(DeviceName,PortNum,PinNum) inline void ConfigureInput##DeviceName() { DDR##PortNum &= ~( 1 << DD##PortNum##PinNum ); } \
-                                                       inline bool CheckHigh##DeviceName() { return PIN##PortNum & ( 1 << (PIN##PortNum##PinNum )) ; } 
-
-
-DEFINE_PIN_AS_INPUT (Btn1,     D, 1);
-DEFINE_PIN_AS_INPUT (Btn2,     D, 0);
-DEFINE_PIN_AS_INPUT (Btn3,     D, 4);
-DEFINE_PIN_AS_INPUT (Btn4,     C, 6);
-DEFINE_PIN_AS_INPUT (Btn5,     D, 7);
-DEFINE_PIN_AS_INPUT (Btn6,     B, 4);
-DEFINE_PIN_AS_INPUT (Btn7,     B, 5);
-DEFINE_PIN_AS_INPUT (BtnStart, B, 6);
-DEFINE_PIN_AS_OUTPUT(Led,      C, 7);
+#define OUT_PIN(PortNum,PinNum) \
+  DDR##PortNum |=  ( 1 << DD##PortNum##PinNum ); \
 
 inline void SetPinModes()
 {
-  ConfigureInputBtn1();
-  ConfigureInputBtn2();
-  ConfigureInputBtn3();
-  ConfigureInputBtn4();
-  ConfigureInputBtn5();
-  ConfigureInputBtn6();
-  ConfigureInputBtn7();
-  ConfigureOutputLed();
+  IN_PIN_PULLUP(D,1);
+  IN_PIN_PULLUP(D,0);
+  IN_PIN_PULLUP(D,4);
+  IN_PIN_PULLUP(C,6);
+  IN_PIN_PULLUP(D,7);
+  IN_PIN_PULLUP(B,4);
+  IN_PIN_PULLUP(B,5);
+  IN_PIN_PULLUP(B,6);
+  OUT_PIN(C,7);
 }
 
  
@@ -41,11 +32,5 @@ int main()
 {
   SetPinModes();
   for (;;) {
-    if ( CheckHighBtn1() || CheckHighBtn2() ) {
-      DriveHighLed();  
-    }
-    else {
-      DriveLowLed();  
-    }
   }
 }
