@@ -1,30 +1,17 @@
 #include <avr/io.h>
 #include <util/delay.h>
-#include "iidx_state.h"
+#include <button.h>
 
-typedef struct {
-  uint16_t button_state;
-  uint8_t  tt_state;
-} input_state;
-
-#define IN_PIN_PULLUP(PortNum,PinNum) \
-  DDR##PortNum &= ~( 1 << DD##PortNum##PinNum ); \
-  PORT##PortNum |= ( 1 << PORT##PortNum##PinNum) ; \
-
-#define OUT_PIN(PortNum,PinNum) \
-  DDR##PortNum |=  ( 1 << DD##PortNum##PinNum ); \
+// Button Port / Pin , LED Port / Pin 
+DEFINE_BTN (Btn1, D, 1, D, 4 );
+DEFINE_BTN (Btn2, D, 0, C, 6 );
 
 inline void SetPinModes()
 {
-  IN_PIN_PULLUP(D,1);
-  IN_PIN_PULLUP(D,0);
-  IN_PIN_PULLUP(D,4);
-  IN_PIN_PULLUP(C,6);
-  IN_PIN_PULLUP(D,7);
-  IN_PIN_PULLUP(B,4);
-  IN_PIN_PULLUP(B,5);
-  IN_PIN_PULLUP(B,6);
-  OUT_PIN(C,7);
+  ConfigureInputBtn1();
+  ConfigureLedBtn1();
+  ConfigureInputBtn2();
+  ConfigureLedBtn2();
 }
 
  
@@ -32,5 +19,18 @@ int main()
 {
   SetPinModes();
   for (;;) {
+    if ( debounceInputCheckBtn1() ) {
+      TurnLedOnBtn1();
+    }
+    else {
+      TurnLedOffBtn1();
+    }
+
+    if (debounceInputCheckBtn2() ) {
+      TurnLedOnBtn2();
+    }
+    else {
+      TurnLedOffBtn2();
+    }
   }
 }
