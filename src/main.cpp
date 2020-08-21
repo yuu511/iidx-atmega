@@ -19,14 +19,14 @@ int main()
 {
   SetPinModes();
   for (;;) {
-    if ( debounceInputCheckBtn1() ) {
+    if ( CheckAndDebounceBtn1() ) {
       TurnLedOnBtn1();
     }
     else {
       TurnLedOffBtn1();
     }
 
-    if (debounceInputCheckBtn2() ) {
+    if ( CheckAndDebounceBtn2() ) {
       TurnLedOnBtn2();
     }
     else {
