@@ -1,9 +1,10 @@
 #include <button.h>
 
-#define DEBOUNCE_TIME 0.0001 // 0.0001 // Seconds.
-#define CYCLE_COUNT DEBOUNCE_TIME * F_CPU
+// Debounce delay
+#define DELAY_SECONDS 0.0000001
+#define CYCLE_COUNT DELAY_SECONDS * F_CPU
 
-void SetupButtons(Button *b, int NumButtons)
+void setupButtons(Button *b, int NumButtons)
 {
   for (int i = 0; i < NumButtons; ++i) {
     b[i].ConfigureInput();
@@ -28,8 +29,8 @@ Button::Button
   lastTimeRead = 0;
 }
 
-bool Button::checkAndDebounce() {
-  if (!CheckPressed) {
+bool Button::checkPressedAndDebounce() {
+  if (!CheckPressed()) {
     if (debounceCounter > 0) {
       debounceCounter--;
     }
@@ -44,20 +45,3 @@ bool Button::checkAndDebounce() {
   }
   return false;
 }
-
-// void ReadButtons()
-// {
-//   if ( CheckAndDebounceBtn1() ) {
-//     TurnLedOnBtn1();
-//   }
-//   else {
-//     TurnLedOffBtn1();
-//   }
-// 
-//   if ( CheckAndDebounceBtn2() ) {
-//     TurnLedOnBtn2();
-//   }
-//   else {
-//     TurnLedOffBtn2();
-//   }
-// }

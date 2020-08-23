@@ -5,8 +5,8 @@ SRCDIR = src
 INCDIR = include
 BUILDFILES = build
 
-MODULES = iidx_state 
-SRC = ${MODULES:=.cpp} main.cpp button.cpp
+MODULES = button
+SRC = ${MODULES:=.cpp} main.cpp 
 OBJ = ${SRC:.cpp=.o}
 CPPOBJ = ${addprefix ${BUILDFILES}/, ${OBJ}}
 

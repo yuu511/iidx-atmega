@@ -3,8 +3,6 @@
 
 #include <avr/io.h>
 
-// checkAndDebounce expects timer to be set up.
-
 typedef void (*Configure_Input)();
 typedef void (*Configure_Led)();
 typedef bool (*Check_Pressed)();
@@ -26,7 +24,7 @@ struct Button {
   Check_Pressed       CheckPressed;
   Turn_Led_On         TurnLedOn;
   Turn_Led_Off        TurnLedOff;
-  bool checkAndDebounce(); 
+  bool checkPressedAndDebounce(); // checkAndDebounce expects timer to be set up.
 };
 
 // compiler plz inline :) ty
@@ -38,6 +36,6 @@ struct Button {
   inline void TurnLedOn##DeviceName()          { PORT##LedPort |= ( 1 << PORT##LedPort##LedPin );  } \
   inline void TurnLedOff##DeviceName()         { PORT##LedPort &= ~( 1 << PORT##LedPort##LedPin );  } \
 
-void SetupButtons(Button *b, int NumButtons);
+void setupButtons(Button *b, int NumButtons);
 
 #endif
