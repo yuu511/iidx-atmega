@@ -1,35 +1,43 @@
 #ifndef __BUTTON_H_
 #define __BUTTON_H_
 
-// CheckAndDebounce expects timer to be set up.
+#include <avr/io.h>
 
-#define DEBOUNCE_TIME 0.0001 // 0.0001 // Seconds.
-#define CYCLE_COUNT DEBOUNCE_TIME * F_CPU
+// checkAndDebounce expects timer to be set up.
 
+typedef void (*Configure_Input)();
+typedef void (*Configure_Led)();
+typedef bool (*Check_Pressed)();
+typedef void (*Turn_Led_On)();
+typedef void (*Turn_Led_Off)();
+
+struct Button {
+  Button( Configure_Input _ConfigureInput, 
+          Configure_Led   _ConfigureLed, 
+          Check_Pressed   _CheckPressed,
+          Turn_Led_On     _TurnLedOn,
+          Turn_Led_Off    _TurnLedOff);
+
+
+  uint32_t            debounceCounter;   
+  uint8_t             lastTimeRead;
+  Configure_Input     ConfigureInput;
+  Configure_Led       ConfigureLed;
+  Check_Pressed       CheckPressed;
+  Turn_Led_On         TurnLedOn;
+  Turn_Led_Off        TurnLedOff;
+  bool checkAndDebounce(); 
+};
+
+// compiler plz inline :) ty
 #define DEFINE_BTN(DeviceName, BtnPort, BtnPin, LedPort, LedPin) \
-  uint32_t debounceCounter##DeviceName = 0; \
-  uint8_t  lastTimeRead##DeviceName = 0;    \
   inline void ConfigureInput##DeviceName()     { DDR##BtnPort &= ~( 1 << DD##BtnPort##BtnPin ); \
                                                  PORT##BtnPort |= ( 1 << PORT##BtnPort##BtnPin);   } \
-  inline bool CheckInput##DeviceName()         { return !(PIN##BtnPort & ( 1 << (PIN##BtnPort##BtnPin ))) ; } \
   inline void ConfigureLed##DeviceName()       { DDR##LedPort |=  ( 1 << DD##LedPort##LedPin ); } \
+  inline bool CheckPressed##DeviceName()         { return !(PIN##BtnPort & ( 1 << (PIN##BtnPort##BtnPin ))) ; } \
   inline void TurnLedOn##DeviceName()          { PORT##LedPort |= ( 1 << PORT##LedPort##LedPin );  } \
   inline void TurnLedOff##DeviceName()         { PORT##LedPort &= ~( 1 << PORT##LedPort##LedPin );  } \
-  inline bool CheckAndDebounce##DeviceName() { \
-    if (!CheckInput##DeviceName()) { \
-      if (debounceCounter##DeviceName > 0 ) { \
-        debounceCounter##DeviceName--; \
-      } \
-    } \
-    else if (debounceCounter##DeviceName < CYCLE_COUNT) { \
-      debounceCounter##DeviceName++; \
-    } \
-    \
-    if (debounceCounter##DeviceName >= CYCLE_COUNT) { \
-      debounceCounter##DeviceName = CYCLE_COUNT; \
-      return true; \
-    } \
-    return false; \
-  }
+
+void SetupButtons(Button *b, int NumButtons);
 
 #endif

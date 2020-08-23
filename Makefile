@@ -6,7 +6,7 @@ INCDIR = include
 BUILDFILES = build
 
 MODULES = iidx_state 
-SRC = ${MODULES:=.cpp} main.cpp
+SRC = ${MODULES:=.cpp} main.cpp button.cpp
 OBJ = ${SRC:.cpp=.o}
 CPPOBJ = ${addprefix ${BUILDFILES}/, ${OBJ}}
 
