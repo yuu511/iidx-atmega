@@ -1,47 +1,52 @@
 #include <button.h>
 
-// Debounce delay
-#define DELAY_SECONDS 0.0000001
-#define CYCLE_COUNT DELAY_SECONDS * F_CPU
-
-void setupButtons(Button *b, int NumButtons)
-{
-  for (int i = 0; i < NumButtons; ++i) {
-    b[i].ConfigureInput();
-    b[i].ConfigureLed();
-  }
-}
+#define TIMER_VAL 23
 
 Button::Button
-( Configure_Input _ConfigureInput, 
-  Configure_Led   _ConfigureLed,  
-  Check_Pressed   _CheckPressed,
-  Turn_Led_On     _TurnLedOn,
-  Turn_Led_Off    _TurnLedOff ) 
+( Configure_Input _configureInput, 
+  Configure_Led   _configureLed,  
+  Check_Pressed   _checkPressed,
+  Turn_Led_On     _turnLedOn,
+  Turn_Led_Off    _turnLedOff ) 
 
-: ConfigureInput(_ConfigureInput),  
-  ConfigureLed(_ConfigureLed),
-  CheckPressed(_CheckPressed),
-  TurnLedOn(_TurnLedOn),
-  TurnLedOff(_TurnLedOff)
+: lastTime(0),
+  lastState(false),
+  isChecking(true),
+  checkPressed(_checkPressed),
+  turnLedOn(_turnLedOn),
+  turnLedOff(_turnLedOff)
 {
-  debounceCounter = 0 ;  
-  lastTimeRead = 0;
+  _configureInput(); 
+  _configureLed();
 }
 
-bool Button::checkPressedAndDebounce() {
-  if (!CheckPressed()) {
-    if (debounceCounter > 0) {
-      debounceCounter--;
+void dummyLedFunction(){};
+
+Button::Button ( Configure_Input _configureInput, Check_Pressed _checkPressed )
+: lastTime(0), 
+  lastState(false),
+  isChecking(true),
+  checkPressed(_checkPressed),
+  turnLedOn(dummyLedFunction),
+  turnLedOff(dummyLedFunction)
+{ _configureInput(); }
+
+
+
+bool Button::checkAndDebounce(uint64_t currentTime) {
+  bool currentState = checkPressed();
+  
+  if (isChecking) {
+    if ((currentTime - lastTime) >=  TIMER_VAL ) {
+      lastState = currentState; 
+      lastTime = currentTime;
+      isChecking = false;
+      return currentState;
     }
   }
-  else if (debounceCounter < CYCLE_COUNT) {
-    debounceCounter++;
+  else if ( currentState != lastState )  {
+    lastTime = currentTime;
+    isChecking = true; 
   }
-
-  if  (debounceCounter >= CYCLE_COUNT) {
-    debounceCounter = CYCLE_COUNT;
-    return true;
-  }
-  return false;
+  return lastState;
 }
