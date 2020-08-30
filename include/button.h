@@ -19,14 +19,12 @@ typedef void (*Turn_Led_Off)();
 typedef struct {
   uint64_t            lastTime;
   bool                lastState;
-  bool                isChecking;
+  bool                isDebouncing;
   Check_Pressed       checkPressed;
   Turn_Led_On         turnLedOn;
   Turn_Led_Off        turnLedOff;
 } Button;
 
-// helper function for buttons with no LED.
-void dummyLedFunction();
 
 void initButton ( Button           *b,
                   Configure_Input _configureInput, 
@@ -35,9 +33,10 @@ void initButton ( Button           *b,
                   Turn_Led_On     _turnLedOn,
                   Turn_Led_Off    _turnLedOff);
 
-bool checkAndDebounce(Button *b, uint64_t currentTime);
+// helper function for buttons with no LED.
+void dummyLedFunction();
 
-void initializeButtons (Button *buttons, int *button_size);
+bool checkAndDebounce (Button *b, uint64_t currentTime);
 
 #define DEFINE_BTN_FUNCTIONS(DeviceName, BtnPort, BtnPin, LedPort, LedPin) \
   void ConfigureInput##DeviceName()     { DDR##BtnPort &= ~( 1 << DD##BtnPort##BtnPin ); \
