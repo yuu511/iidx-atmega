@@ -1,45 +1,43 @@
-MMCU = atmega32u4
-CLKSPEED = 16000000 
+#
+#             LUFA Library
+#     Copyright (C) Dean Camera, 2020.
+#
+#  dean [at] fourwalledcubicle [dot] com
+#           www.lufa-lib.org
+#
+# --------------------------------------
+#         LUFA Project Makefile.
+# --------------------------------------
 
-SRCDIR = src
-INCDIR = include
-BUILDFILES = build
+# Run "make help" for target help.
 
-MODULES = button
-SRC = ${MODULES:=.cpp} main.cpp 
-OBJ = ${SRC:.cpp=.o}
-CPPOBJ = ${addprefix ${BUILDFILES}/, ${OBJ}}
+MCU          = atmega32u4
+ARCH         = AVR8
+BOARD        = MINIMUS
+F_CPU        = 16000000
+F_USB        = $(F_CPU)
+OPTIMIZATION = s
+TARGET       = iidx
+SRC          = src/$(TARGET).c $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) src/button.c
+LUFA_PATH    = ../../../src/lufa/LUFA
+CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -Iinclude/
+LD_FLAGS     =
 
-BIN = iidx
-CPPBIN = ${addprefix ${BUILDFILES}/,${BIN}}
-HEXFILE = ${BIN:=.hex}
+# Default target
+all:
 
-CC = avr-gcc
-GENFLAGS = -Wall -Os
-MMCUFLAG = -mmcu=${MMCU}
-CLKFLAG = -DF_CPU=${CLKSPEED}
-INCLUDEFLAG = -I${INCDIR}
-FLAGS = ${GENFLAGS} ${MMCUFLAG} ${CLKFLAG} ${INCLUDEFLAG}
+# Include LUFA-specific DMBS extension modules
+DMBS_LUFA_PATH ?= $(LUFA_PATH)/Build/LUFA
+include $(DMBS_LUFA_PATH)/lufa-sources.mk
+include $(DMBS_LUFA_PATH)/lufa-gcc.mk
 
-all : ${BUILDFILES} ${HEXFILE} 
-
-${BUILDFILES} :
-	mkdir $@
-
-${HEXFILE} : ${CPPBIN}
-	avr-objcopy -O ihex -R .eeprom $< $@
-    
-${CPPBIN} : ${CPPOBJ}
-	${CC} ${MMCUFLAG} $^ -o $@ 
-
-${CPPOBJ} : ${BUILDFILES}/%.o : ${SRCDIR}/%.cpp
-	${CC} ${FLAGS} -c $< -o $@
-
-upload : all
-	./flash.sh
-    
-clean :
-	rm -r ${HEXFILE} ${BUILDFILES}
- 
-hexonly : ${HEXFILE}
-	rm ${BIN} ${OBJECTS}
+# Include common DMBS build system modules
+DMBS_PATH      ?= $(LUFA_PATH)/Build/DMBS/DMBS
+include $(DMBS_PATH)/core.mk
+include $(DMBS_PATH)/cppcheck.mk
+include $(DMBS_PATH)/doxygen.mk
+include $(DMBS_PATH)/dfu.mk
+include $(DMBS_PATH)/gcc.mk
+include $(DMBS_PATH)/hid.mk
+include $(DMBS_PATH)/avrdude.mk
+include $(DMBS_PATH)/atprogram.mk
