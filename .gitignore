@@ -8,4 +8,5 @@ build
 *.lss
 *.sym
 *.a
+lufa
 obj
