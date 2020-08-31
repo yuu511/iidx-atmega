@@ -23,15 +23,17 @@ DEFINE_BTN_FUNCTIONS_NO_LED (START, F, 5);
 uint64_t PROGRAM_EXECUTION_TIME = 0;
 
 
-// timer 1
-void setup_timer() {
+// timer 1 : Increments every 0.1 ms.
+void setup_timer() 
+{
   TCCR1B |= ( 1 << WGM12) ; 
   OCR1A = 24;
   TIMSK1 |= ( 1 << OCIE1A);
   TCCR1B |= ( 1 << CS10) | ( 1 << CS11);
 }
 
-int main(void) {
+int main(void) 
+{
 
   Button buttons[9] = {0};
 
