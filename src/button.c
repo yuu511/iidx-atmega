@@ -1,42 +1,59 @@
 #include <button.h>
 
 #define TIMER_VAL 23
+#define BIT_CHECK(variable,pos)      ((variable) & (1 << pos))
+#define BIT_CLEAR(variable,pos)      variable &= ~(1 << pos) 
+#define BIT_SET(variable,pos)        variable |= (1 << pos)
+#define BIT_ASSIGN(variable,pos,val) variable = ( variable & ~( 1 << pos) ) | ( val << pos ) 
 
-void initButton (   Button *b,
-                    Configure_Input _configureInput, 
-                    Configure_Led   _configureLed, 
-                    Check_Pressed   _checkPressed,
-                    Turn_Led_On     _turnLedOn,
-                    Turn_Led_Off    _turnLedOff)
+
+void setupDButtons ( PORTD_BUTTONS *b ) 
 {
-  _configureInput();
-  _configureLed();
-  b->lastTime = 0;
-  b->lastState =  FALSE;
-  b->isDebouncing = FALSE;
-  b->checkPressed = _checkPressed;
-  b->turnLedOn = _turnLedOn;
-  b->turnLedOff = _turnLedOff;
+  DDRD  &= ~(b->mask);
+  PORTD |= b->mask;
+
+  for (int i = 0; i < 4; ++i) {
+    if ( BIT_CHECK(b->mask,i) )
+      BIT_SET(DDRB, b->B_LEDS[i]);
+  }
+
+  for (int i = 0; i < 4; ++i) {
+    if ( BIT_CHECK(b->mask,(i+4)) )
+      BIT_SET(DDRF, b->F_LEDS[i]);      
+  }
+
 }
 
-bool checkAndDebounce(Button *b, uint64_t currentTime) 
+uint8_t getDState( PORTD_BUTTONS *b, uint64_t currentTime ) 
 {
-  bool currentState = b->checkPressed();
-
-  if (b->isDebouncing) {
-    if (( currentTime - b->lastTime ) >= TIMER_VAL ) {
-      b->lastState = currentState;
-      b->lastTime = currentTime;
-      b->isDebouncing = FALSE;
-      return currentState;
+  uint8_t currentState = b->mask & ~(PIND);
+  
+  for ( int i = 0; i < 8; ++i ) {
+    if ( BIT_CHECK(b->isDebouncing,i) ) {
+      if ( currentTime - b->last_pressed[i] >= TIMER_VAL ) {
+        BIT_ASSIGN(b->state,i,(BIT_CHECK(currentState,i)));
+        b->isDebouncing &= ~(1<<i);
+      }
+    }
+    else if ( BIT_CHECK(currentState,i) != BIT_CHECK(b->state,i)  ) {
+      BIT_SET(b->isDebouncing,i);
+      b->last_pressed[i] = currentTime;
     }
   }
-  else if (currentState != b->lastState) {
-    b->lastTime = currentTime;
-    b->isDebouncing = TRUE;
-  }
 
-  return b->lastState;
+  return b->state;
 }
 
-void dummyLedFunction(){};
+void LED_D_toggle ( PORTD_BUTTONS *b ) 
+{
+  for (int i = 0; i < 4; ++i) {
+    if ( BIT_CHECK(b->state,i) )
+      BIT_SET(PORTB, b->B_LEDS[i]);
+  }
+
+  for (int i = 0; i < 4; ++i) {
+    if ( BIT_CHECK(b->state,(i+4)) )
+      BIT_SET(PORTF, b->F_LEDS[i]);      
+  }
+
+}
