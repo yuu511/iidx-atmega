@@ -25,7 +25,7 @@ void setupDButtons ( PORTD_BUTTONS *b )
 
 uint8_t getDState( PORTD_BUTTONS *b, uint64_t currentTime ) 
 {
-  uint8_t currentState = (~PIND) & b->mask;
+  uint8_t currentState = PIND & b->mask;
   
   for ( int i = 0; i < 8; ++i ) {
     if ( b->isDebouncing & (1<<i) ) {
@@ -52,19 +52,19 @@ void LED_D_toggle ( PORTD_BUTTONS *b )
 {
   for (int i = 0; i < 4; ++i) {
     if ( BIT_CHECK(b->state,i) ) {
-      BIT_SET(PORTB,b->B_LEDS[i]);
+      BIT_CLEAR(PORTB,b->B_LEDS[i]);
     }
     else {
-      BIT_CLEAR(PORTB,b->B_LEDS[i]);
+      BIT_SET(PORTB,b->B_LEDS[i]);
     }
   }
 
   for (int i = 0; i < 4; ++i) {
     if ( BIT_CHECK(b->state,(i+4)) ) {
-      BIT_SET(PORTF,b->F_LEDS[i]);
+      BIT_CLEAR(PORTF,b->F_LEDS[i]);
     }
     else {
-      BIT_CLEAR(PORTF,b->F_LEDS[i]);
+      BIT_SET(PORTF,b->F_LEDS[i]);
     }
   }
 
