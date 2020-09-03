@@ -5,7 +5,7 @@
 #define BIT_CLEAR(variable,pos)      variable &= ~(1 << pos) 
 #define BIT_SET(variable,pos)        variable |= (1 << pos)
 
-static PORTD_BUTTONS buttons = {
+static GAMEPLAY_BUTTONS buttons = {
   .mask = 0b11011111, // all gameplay buttons are on port D.
   .state =  0,
   .isDebouncing = 0,

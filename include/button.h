@@ -10,7 +10,7 @@ typedef struct {
   uint8_t B_LEDS[4];
   uint8_t F_LEDS[4];
   uint64_t last_pressed[8];
-} PORTD_BUTTONS;
+} GAMEPLAY_BUTTONS;
 
 void setupGButtons(void);
 
