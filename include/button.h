@@ -12,10 +12,8 @@ typedef struct {
   uint64_t last_pressed[8];
 } PORTD_BUTTONS;
 
-void setupDButtons(PORTD_BUTTONS *b);
+void setupGButtons(void);
 
-uint8_t getDState(PORTD_BUTTONS *b, uint64_t currentTime);
-
-void LED_D_toggle(PORTD_BUTTONS *b); 
+uint8_t gameplayButtonState(uint64_t currentTime);
 
 #endif

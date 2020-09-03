@@ -5,62 +5,76 @@
 #define BIT_CLEAR(variable,pos)      variable &= ~(1 << pos) 
 #define BIT_SET(variable,pos)        variable |= (1 << pos)
 
+static PORTD_BUTTONS buttons = {
+  .mask = 0b11011111,
+  .state =  0,
+  .isDebouncing = 0,
+  .B_LEDS = { PB4, PB5, PB6, PB7 },
+  .F_LEDS = { PF0, PF1, PF4, PF5 },
+  .last_pressed = { 0 }
+};
 
-void setupDButtons ( PORTD_BUTTONS *b ) 
+void setupGButtons (void) 
 {
-  DDRD &= ~(b->mask);
-  PORTD |= b->mask;
+  DDRD &= ~(buttons.mask);
+  PORTD |= buttons.mask;
 
   for (int i = 0; i < 4; ++i) {
-    if ( BIT_CHECK(b->mask,i) )
-      BIT_SET(DDRB,b->B_LEDS[i]);
+    if ( BIT_CHECK(buttons.mask,i) )
+      BIT_SET(DDRB,buttons.B_LEDS[i]);
   }
 
   for (int i = 0; i < 4; ++i) {
-    if ( BIT_CHECK(b->mask,(i+4)) ) 
-      BIT_SET(DDRF,b->F_LEDS[i]);
+    if ( BIT_CHECK(buttons.mask,(i+4)) ) 
+      BIT_SET(DDRF,buttons.F_LEDS[i]);
   }
 
 }
 
-uint8_t getDState( PORTD_BUTTONS *b, uint64_t currentTime ) 
+uint8_t gameplayButtonState(uint64_t currentTime) 
 {
-  uint8_t currentState = PIND & b->mask;
+  uint8_t currentState = PIND & buttons.mask;
   
-  for ( int i = 0; i < 8; ++i ) {
-    if ( BIT_CHECK(b->isDebouncing,i) ) {
-      if ( (currentTime - b->last_pressed[i]) >= TIMER_VAL ) {
-       b->state = ( (b->state & ~(1<<i)) | (BIT_CHECK(currentState,i)) ); 
-       BIT_CLEAR(b->isDebouncing,i);
+  for ( int i = 0; i < 4; ++i ) {
+    if ( BIT_CHECK(buttons.isDebouncing,i) ) {
+      if ( (currentTime - buttons.last_pressed[i]) >= TIMER_VAL ) {
+       buttons.state = ( (buttons.state & ~(1<<i)) | (BIT_CHECK(currentState,i)) ); 
+       BIT_CLEAR(buttons.isDebouncing,i);
       }
     }
-    else if ( BIT_CHECK(currentState,i) != BIT_CHECK(b->state,i) ) {
-      BIT_SET(b->isDebouncing,i);
-      b->last_pressed[i] = currentTime;
+    else if ( BIT_CHECK(currentState,i) != BIT_CHECK(buttons.state,i) ) {
+      BIT_SET(buttons.isDebouncing,i);
+      buttons.last_pressed[i] = currentTime;
     }
-  }
 
-  return b->state;
-}
-
-void LED_D_toggle ( PORTD_BUTTONS *b ) 
-{
-  for (int i = 0; i < 4; ++i) {
-    if ( BIT_CHECK(b->state,i) ) {
-      BIT_CLEAR(PORTB,b->B_LEDS[i]);
+    if ( BIT_CHECK(buttons.state,i) ) {
+      BIT_CLEAR(PORTB,buttons.B_LEDS[i]);
     }
     else {
-      BIT_SET(PORTB,b->B_LEDS[i]);
+      BIT_SET(PORTB,buttons.B_LEDS[i]);
     }
   }
 
-  for (int i = 0; i < 4; ++i) {
-    if ( BIT_CHECK(b->state,(i+4)) ) {
-      BIT_CLEAR(PORTF,b->F_LEDS[i]);
+
+  for ( int i = 4; i < 8; ++i ) {
+    if ( BIT_CHECK(buttons.isDebouncing,i) ) {
+      if ( (currentTime - buttons.last_pressed[i]) >= TIMER_VAL ) {
+       buttons.state = ( (buttons.state & ~(1<<i)) | (BIT_CHECK(currentState,i)) ); 
+       BIT_CLEAR(buttons.isDebouncing,i);
+      }
+    }
+    else if ( BIT_CHECK(currentState,i) != BIT_CHECK(buttons.state,i) ) {
+      BIT_SET(buttons.isDebouncing,i);
+      buttons.last_pressed[i] = currentTime;
+    }
+
+    if ( BIT_CHECK(buttons.state,(i)) ) {
+      BIT_CLEAR(PORTF,buttons.F_LEDS[i-4]);
     }
     else {
-      BIT_SET(PORTF,b->F_LEDS[i]);
+      BIT_SET(PORTF,buttons.F_LEDS[i-4]);
     }
   }
 
+  return buttons.state;
 }

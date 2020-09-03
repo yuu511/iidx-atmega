@@ -18,20 +18,10 @@ int main(void)
 {
   setup_timer();
   sei();
-
-  PORTD_BUTTONS buttons = {
-    .mask = 0b11011111,
-    .state =  0,
-    .isDebouncing = 0,
-    .B_LEDS = { PB4, PB5, PB6, PB7 },
-    .F_LEDS = { PF0, PF1, PF4, PF5 },
-    .last_pressed = { 0 }
-  };
-  setupDButtons(&buttons);
+  setupGButtons();
 
   for (;;) {
-    getDState(&buttons,PROGRAM_EXECUTION_TIME);
-    LED_D_toggle(&buttons);
+    gameplayButtonState(PROGRAM_EXECUTION_TIME);
   }
 
   return 1;
