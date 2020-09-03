@@ -17,7 +17,7 @@ void setupDButtons ( PORTD_BUTTONS *b )
   }
 
   for (int i = 0; i < 4; ++i) {
-    if ( BIT_CHECK(b->mask,i+4) ) 
+    if ( BIT_CHECK(b->mask,(i+4)) ) 
       BIT_SET(DDRF,b->F_LEDS[i]);
   }
 
@@ -25,16 +25,16 @@ void setupDButtons ( PORTD_BUTTONS *b )
 
 uint8_t getDState( PORTD_BUTTONS *b, uint64_t currentTime ) 
 {
-  uint8_t currentState = PIND & b->mask;
+  uint8_t currentState = (~PIND) & b->mask;
   
   for ( int i = 0; i < 8; ++i ) {
     if ( b->isDebouncing & (1<<i) ) {
       if ( (currentTime - b->last_pressed[i]) >= TIMER_VAL ) {
        if ( BIT_CHECK(currentState,i) ) {
-         BIT_CLEAR (b->state,i);
+         BIT_SET (b->state,i);
        }
        else {
-         BIT_SET (b->state,i);
+         BIT_CLEAR (b->state,i);
        }
         b->isDebouncing &= ~(1<<i);
       }
@@ -51,20 +51,20 @@ uint8_t getDState( PORTD_BUTTONS *b, uint64_t currentTime )
 void LED_D_toggle ( PORTD_BUTTONS *b ) 
 {
   for (int i = 0; i < 4; ++i) {
-    if ( b->state & ( 1<<i) ){
-      PORTB |= (1 << b->B_LEDS[i]);
+    if ( BIT_CHECK(b->state,i) ) {
+      BIT_SET(PORTB,b->B_LEDS[i]);
     }
     else {
-      PORTB &= ~(1 << b->B_LEDS[i]);
+      BIT_CLEAR(PORTB,b->B_LEDS[i]);
     }
   }
 
   for (int i = 0; i < 4; ++i) {
-    if ( b->state & ( 1<< (i+4)) ){
-      PORTF |= (1 << b->F_LEDS[i]);
+    if ( BIT_CHECK(b->state,(i+4)) ) {
+      BIT_SET(PORTF,b->F_LEDS[i]);
     }
     else {
-      PORTF &= ~(1 << b->F_LEDS[i]);
+      BIT_CLEAR(PORTF,b->F_LEDS[i]);
     }
   }
 
