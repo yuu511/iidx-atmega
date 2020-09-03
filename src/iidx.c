@@ -29,12 +29,9 @@ int main(void)
   };
   setupDButtons(&buttons);
 
-  uint8_t st;
-  DDRB |= ( 1 << PB7);
   for (;;) {
-    st = getDState(&buttons,PROGRAM_EXECUTION_TIME);
+    getDState(&buttons,PROGRAM_EXECUTION_TIME);
     LED_D_toggle(&buttons);
-    
   }
 
   return 1;
