@@ -20,7 +20,7 @@ int main(void)
   sei();
 
   PORTD_BUTTONS buttons = {
-    .mask = ( PD0 | PD1 | PD2 | PD3 | PD4 | PD6 | PD7 ),  
+    .mask = 0b11011111,
     .state =  0,
     .isDebouncing = 0,
     .B_LEDS = { PB4, PB5, PB6, PB7 },
@@ -30,9 +30,11 @@ int main(void)
   setupDButtons(&buttons);
 
   uint8_t st;
+  DDRB |= ( 1 << PB7);
   for (;;) {
     st = getDState(&buttons,PROGRAM_EXECUTION_TIME);
     LED_D_toggle(&buttons);
+    
   }
 
   return 1;
