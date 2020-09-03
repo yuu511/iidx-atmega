@@ -28,19 +28,14 @@ uint8_t getDState( PORTD_BUTTONS *b, uint64_t currentTime )
   uint8_t currentState = PIND & b->mask;
   
   for ( int i = 0; i < 8; ++i ) {
-    if ( b->isDebouncing & (1<<i) ) {
+    if ( BIT_CHECK(b->isDebouncing,i) ) {
       if ( (currentTime - b->last_pressed[i]) >= TIMER_VAL ) {
-       if ( BIT_CHECK(currentState,i) ) {
-         BIT_SET (b->state,i);
-       }
-       else {
-         BIT_CLEAR (b->state,i);
-       }
-        b->isDebouncing &= ~(1<<i);
+       b->state = ( (b->state & ~(1<<i)) | (BIT_CHECK(currentState,i)) ); 
+       BIT_CLEAR(b->isDebouncing,i);
       }
     }
-    else if ( (currentState & ( 1<< i)) != ((b->state) & ( 1 <<i))  ) {
-      b->isDebouncing |= ( 1 << i );
+    else if ( BIT_CHECK(currentState,i) != BIT_CHECK(b->state,i) ) {
+      BIT_SET(b->isDebouncing,i);
       b->last_pressed[i] = currentTime;
     }
   }
