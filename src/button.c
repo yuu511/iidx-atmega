@@ -6,11 +6,11 @@
 #define BIT_SET(variable,pos)        variable |= (1 << pos)
 
 static PORTD_BUTTONS buttons = {
-  .mask = 0b11011111,
+  .mask = 0b11011111, // all gameplay buttons are on port D.
   .state =  0,
   .isDebouncing = 0,
-  .B_LEDS = { PB4, PB5, PB6, PB7 },
-  .F_LEDS = { PF0, PF1, PF4, PF5 },
+  .B_LEDS = { PB4, PB5, PB6, PB7 }, // PD0-3
+  .F_LEDS = { PF0, PF1, PF4, PF5 }, // PD4-7
   .last_pressed = { 0 }
 };
 
