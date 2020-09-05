@@ -1,9 +1,12 @@
 #include <button.h>
+#include <iidx.h>
 
 #define TIMER_VAL 23
 #define BIT_CHECK(variable,pos)      ((variable) & (1 << pos))
 #define BIT_CLEAR(variable,pos)      variable &= ~(1 << pos) 
 #define BIT_SET(variable,pos)        variable |= (1 << pos)
+
+
 
 static GAMEPLAY_BUTTONS buttons = {
   .mask = 0b11011111, // all gameplay buttons are on port D.
@@ -14,11 +17,14 @@ static GAMEPLAY_BUTTONS buttons = {
   .last_pressed = { 0 }
 };
 
-void setupGButtons (void) 
+void setupGameplayButtons (void) 
 {
   DDRD &= ~(buttons.mask);
   PORTD |= buttons.mask;
+}
 
+void setupGameplayLEDs (void) 
+{
   for (int i = 0; i < 4; ++i) {
     if ( BIT_CHECK(buttons.mask,i) )
       BIT_SET(DDRB,buttons.B_LEDS[i]);
@@ -28,12 +34,11 @@ void setupGButtons (void)
     if ( BIT_CHECK(buttons.mask,(i+4)) ) 
       BIT_SET(DDRF,buttons.F_LEDS[i]);
   }
-
 }
 
 uint8_t gameplayButtonState(uint64_t currentTime) 
 {
-  uint8_t currentState = PIND & buttons.mask;
+  uint8_t currentState = ~PIND & buttons.mask;
   
   for ( int i = 0; i < 4; ++i ) {
     if ( BIT_CHECK(buttons.isDebouncing,i) ) {
@@ -48,10 +53,10 @@ uint8_t gameplayButtonState(uint64_t currentTime)
     }
 
     if ( BIT_CHECK(buttons.state,i) ) {
-      BIT_CLEAR(PORTB,buttons.B_LEDS[i]);
+      BIT_SET(PORTB,buttons.B_LEDS[i]);
     }
     else {
-      BIT_SET(PORTB,buttons.B_LEDS[i]);
+      BIT_CLEAR(PORTB,buttons.B_LEDS[i]);
     }
   }
 
@@ -69,12 +74,34 @@ uint8_t gameplayButtonState(uint64_t currentTime)
     }
 
     if ( BIT_CHECK(buttons.state,(i)) ) {
-      BIT_CLEAR(PORTF,buttons.F_LEDS[i-4]);
+      BIT_SET(PORTF,buttons.F_LEDS[i-4]);
     }
     else {
-      BIT_SET(PORTF,buttons.F_LEDS[i-4]);
+      BIT_CLEAR(PORTF,buttons.F_LEDS[i-4]);
     }
   }
 
   return buttons.state;
+}
+
+// do not debounce START, VEFX 
+void setupMetaButtons(void)
+{
+  DDRE &= ~(1 << PE6);
+  PORTE |= (1 << PE6);
+
+  DDRC &= ~(1 << PC7);
+  PORTC |= (1 << PC7);
+}
+
+uint8_t metaButtonState(void)
+{
+  uint8_t metaButtonState = 0; 
+  if (!BIT_CHECK(PINE,6)) {
+    metaButtonState |= 1;  
+  }
+  if (!BIT_CHECK(PINC,7)) {
+    metaButtonState |= 1 << 1;  
+  }
+  return metaButtonState;
 }
