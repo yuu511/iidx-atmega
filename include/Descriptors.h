@@ -8,6 +8,7 @@
 
 /*
   Copyright 2020  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2010  Denver Gingerich (denver [at] ossguy [dot] com)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -37,9 +38,9 @@
 #define _DESCRIPTORS_H_
 
 	/* Includes: */
-		#include <avr/pgmspace.h>
-
 		#include <LUFA/Drivers/USB/USB.h>
+
+		#include <avr/pgmspace.h>
 
 	/* Type Defines: */
 		/** Type define for the device configuration descriptor structure. This must be defined in the
@@ -54,6 +55,7 @@
 			USB_Descriptor_Interface_t            HID1_KeyboardInterface;
 			USB_HID_Descriptor_HID_t              HID1_KeyboardHID;
 			USB_Descriptor_Endpoint_t             HID1_ReportINEndpoint;
+			USB_Descriptor_Endpoint_t             HID1_ReportOUTEndpoint;
 
 			// Mouse HID Interface
 			USB_Descriptor_Interface_t            HID2_MouseInterface;
@@ -84,13 +86,16 @@
 
 	/* Macros: */
 		/** Endpoint address of the Keyboard HID reporting IN endpoint. */
-		#define KEYBOARD_IN_EPADDR        (ENDPOINT_DIR_IN | 1)
+		#define KEYBOARD_IN_EPADDR        (ENDPOINT_DIR_IN  | 1)
+
+		/** Endpoint address of the Keyboard HID reporting OUT endpoint. */
+		#define KEYBOARD_OUT_EPADDR       (ENDPOINT_DIR_OUT | 2)
 
 		/** Endpoint address of the Mouse HID reporting IN endpoint. */
-		#define MOUSE_IN_EPADDR           (ENDPOINT_DIR_IN | 3)
+		#define MOUSE_IN_EPADDR           (ENDPOINT_DIR_IN  | 3)
 
-		/** Size in bytes of each of the HID reporting IN endpoints. */
-		#define HID_EPSIZE                8
+		/** Size in bytes of each of the HID reporting IN and OUT endpoints. */
+		#define HID_EPSIZE                64
 
 	/* Function Prototypes: */
 		uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,

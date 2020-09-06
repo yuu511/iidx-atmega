@@ -3,53 +3,17 @@
  
 uint64_t PROGRAM_EXECUTION_TIME = 0;
 
-/** Buffer to hold the previously generated Keyboard HID report, for comparison purposes inside the HID class driver. */
-static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
+typedef struct {
+  uint8_t Modifier;
+  uint8_t Reserved;
+  uint8_t KeyCode[10];
+} USB_ExtendedKeyboardReport_Data_t;
 
-/** Buffer to hold the previously generated Mouse HID report, for comparison purposes inside the HID class driver. */
-static uint8_t PrevMouseHIDReportBuffer[sizeof(USB_MouseReport_Data_t)];
+/** Global structure to hold the current keyboard interface HID report, for transmission to the host */
+static USB_ExtendedKeyboardReport_Data_t KeyboardReportData;
 
-/** LUFA HID Class driver interface configuration and state information. This structure is
- *  passed to all HID Class driver functions, so that multiple instances of the same class
- *  within a device can be differentiated from one another. This is for the keyboard HID
- *  interface within the device.
- */
-USB_ClassInfo_HID_Device_t Keyboard_HID_Interface =
-	{
-		.Config =
-			{
-				.InterfaceNumber              = INTERFACE_ID_Keyboard,
-				.ReportINEndpoint             =
-					{
-						.Address              = KEYBOARD_IN_EPADDR,
-						.Size                 = HID_EPSIZE,
-						.Banks                = 1,
-					},
-				.PrevReportINBuffer           = PrevKeyboardHIDReportBuffer,
-				.PrevReportINBufferSize       = sizeof(PrevKeyboardHIDReportBuffer),
-			},
-	};
-
-/** LUFA HID Class driver interface configuration and state information. This structure is
- *  passed to all HID Class driver functions, so that multiple instances of the same class
- *  within a device can be differentiated from one another. This is for the mouse HID
- *  interface within the device.
- */
-USB_ClassInfo_HID_Device_t Mouse_HID_Interface =
-    {
-    	.Config =
-    		{
-    			.InterfaceNumber              = INTERFACE_ID_Mouse,
-    			.ReportINEndpoint             =
-    				{
-    					.Address              = MOUSE_IN_EPADDR,
-    					.Size                 = HID_EPSIZE,
-    					.Banks                = 1,
-    				},
-    			.PrevReportINBuffer           = PrevMouseHIDReportBuffer,
-    			.PrevReportINBufferSize       = sizeof(PrevMouseHIDReportBuffer),
-    		},
-    };
+/** Global structure to hold the current mouse interface HID report, for transmission to the host */
+static USB_MouseReport_Data_t MouseReportData;
 
 // timer 1 : Increments every 0.1 ms.
 void SetupTimer(void) 
@@ -58,6 +22,21 @@ void SetupTimer(void)
   OCR1A = 24;
   TIMSK1 |= ( 1 << OCIE1A);
   TCCR1B |= ( 1 << CS10) | ( 1 << CS11);
+}
+
+int main(void) 
+{
+  SetupHardware();
+
+  GlobalInterruptEnable();
+
+  for (;;) {
+    Keyboard_HID_Task();
+    Mouse_HID_Task();
+    USB_USBTask();
+  }
+
+  return 1;
 }
 
 void SetupHardware(void) 
@@ -77,110 +56,203 @@ void SetupHardware(void)
   USB_Init();
 }
 
-int main(void) 
-{
-  SetupHardware();
-
-  GlobalInterruptEnable();
-
-  for (;;) {
-    HID_Device_USBTask(&Keyboard_HID_Interface);
-    HID_Device_USBTask(&Mouse_HID_Interface);
-    USB_USBTask();
-  }
-
-  return 1;
-}
-
 ISR(TIMER1_COMPA_vect)
 {
   PROGRAM_EXECUTION_TIME++;
 }
 
-void EVENT_USB_Device_Connect(void) {}
+void EVENT_USB_Device_Connect(void){}
+
 void EVENT_USB_Device_Disconnect(void){}
+
+/** Event handler for the USB_ConfigurationChanged event. This is fired when the host sets the current configuration
+ *  of the USB device after enumeration, and configures the keyboard and mouse device endpoints.
+ */
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
-  bool ConfigSuccess = true;
-  
-  ConfigSuccess &= HID_Device_ConfigureEndpoints(&Keyboard_HID_Interface);
-  
-  USB_Device_EnableSOFEvents();
+	bool ConfigSuccess = true;
+
+	/* Setup Keyboard HID Report Endpoints */
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+
+	/* Setup Mouse HID Report Endpoint */
+	ConfigSuccess &= Endpoint_ConfigureEndpoint(MOUSE_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
 }
 
+/** Event handler for the USB_ControlRequest event. This is used to catch and process control requests sent to
+ *  the device from the USB host before passing along unhandled control requests to the library for processing
+ *  internally.
+ */
 void EVENT_USB_Device_ControlRequest(void)
 {
-  HID_Device_ProcessControlRequest(&Keyboard_HID_Interface);
+	uint8_t* ReportData;
+	uint8_t  ReportSize;
+
+	/* Handle HID Class specific requests */
+	switch (USB_ControlRequest.bRequest)
+	{
+		case HID_REQ_GetReport:
+			if (USB_ControlRequest.bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSETUP();
+
+				/* Determine if it is the mouse or the keyboard data that is being requested */
+				if (!(USB_ControlRequest.wIndex))
+				{
+					ReportData = (uint8_t*)&KeyboardReportData;
+					ReportSize = sizeof(KeyboardReportData);
+				}
+				else
+				{
+					ReportData = (uint8_t*)&MouseReportData;
+					ReportSize = sizeof(MouseReportData);
+				}
+
+				/* Write the report data to the control endpoint */
+				Endpoint_Write_Control_Stream_LE(ReportData, ReportSize);
+				Endpoint_ClearOUT();
+
+				/* Clear the report data afterwards */
+				memset(ReportData, 0, ReportSize);
+			}
+
+			break;
+		case HID_REQ_SetReport:
+			if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+			{
+				Endpoint_ClearSETUP();
+
+				/* Wait until the LED report has been sent by the host */
+				while (!(Endpoint_IsOUTReceived()))
+				{
+					if (USB_DeviceState == DEVICE_STATE_Unattached)
+					  return;
+				}
+
+				Endpoint_ClearOUT();
+				Endpoint_ClearStatusStage();
+			}
+
+			break;
+	}
 }
 
-void EVENT_USB_Device_StartOfFrame(void)
+/** Keyboard task. This generates the next keyboard HID report for the host, and transmits it via the
+ *  keyboard IN endpoint when the host is ready for more data. Additionally, it processes host LED status
+ *  reports sent to the device via the keyboard OUT reporting endpoint.
+ */
+void Keyboard_HID_Task(void)
 {
-  HID_Device_MillisecondElapsed(&Keyboard_HID_Interface);
+
+	/* Device must be connected and configured for the task to run */
+	if (USB_DeviceState != DEVICE_STATE_Configured)
+	  return;
+
+     uint8_t gButtonStatus = gameplayButtonState(PROGRAM_EXECUTION_TIME);
+     uint8_t mButtonStatus = metaButtonState();
+     uint8_t keycodeCount = 0;
+
+	/* Check if board button is not pressed, if so mouse mode enabled */
+    if ( gButtonStatus & GBUTTON1 ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_S;
+
+    if ( gButtonStatus & GBUTTON2 ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_Y;
+
+    if ( gButtonStatus & GBUTTON3 ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_A;
+
+    if ( gButtonStatus & GBUTTON4 ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_R;
+
+    if ( gButtonStatus & GBUTTON5 ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_O;
+
+    if ( gButtonStatus & GBUTTON6 ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_C;
+
+    if ( gButtonStatus & GBUTTON7 ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_H;
+
+    if ( mButtonStatus & MBUTTONSTART ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_N;
+
+    if ( mButtonStatus & MBUTTONVEFX ) 
+      KeyboardReportData.KeyCode[keycodeCount++] = HID_KEYBOARD_SC_Z;
+
+	/* Select the Keyboard Report Endpoint */
+	Endpoint_SelectEndpoint(KEYBOARD_IN_EPADDR);
+
+	/* Check if Keyboard Endpoint Ready for Read/Write */
+	if (Endpoint_IsReadWriteAllowed())
+	{
+		/* Write Keyboard Report Data */
+		Endpoint_Write_Stream_LE(&KeyboardReportData, sizeof(KeyboardReportData), NULL);
+
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearIN();
+
+		/* Clear the report data afterwards */
+		memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
+	}
+
+	/* Select the Keyboard LED Report Endpoint */
+	Endpoint_SelectEndpoint(KEYBOARD_OUT_EPADDR);
+
+	/* Check if Keyboard LED Endpoint Ready for Read/Write */
+	if (Endpoint_IsReadWriteAllowed())
+	{
+		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
+		Endpoint_ClearOUT();
+	}
 }
 
-bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                         uint8_t* const ReportID,
-                                         const uint8_t ReportType,
-                                         void* ReportData,
-                                         uint16_t* const ReportSize)
+/** Mouse task. This generates the next mouse HID report for the host, and transmits it via the
+ *  mouse IN endpoint when the host is ready for more data.
+ */
+void Mouse_HID_Task(void)
 {
-  if (HIDInterfaceInfo == &Keyboard_HID_Interface) {
-    USB_KeyboardReport_Data_t* KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
-    uint8_t gButtons = gameplayButtonState(PROGRAM_EXECUTION_TIME);
-    uint8_t mButtons = metaButtonState();
-    uint8_t UsedKeyCodes = 0;
+	// uint8_t JoyStatus_LCL = Joystick_GetStatus();
 
-    if (gButtons & GBUTTON1) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_S;
-    }
+	/* Device must be connected and configured for the task to run */
+	if (USB_DeviceState != DEVICE_STATE_Configured)
+	  return;
 
-    if (gButtons & GBUTTON2) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_Y;
-    }
+	/* Check if board button is pressed, if so mouse mode enabled */
+    MouseReportData.Y = 0;
+    MouseReportData.Y = 0;
+    MouseReportData.Button = 0;
+	//if (Buttons_GetStatus() & BUTTONS_BUTTON1)
+	//{
+	//	if (JoyStatus_LCL & JOY_UP)
+	//	  MouseReportData.Y =  1;
+	//	else if (JoyStatus_LCL & JOY_DOWN)
+	//	  MouseReportData.Y = -1;
 
-    if (gButtons & GBUTTON3) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_A;
-    }
+	//	if (JoyStatus_LCL & JOY_RIGHT)
+	//	  MouseReportData.X =  1;
+	//	else if (JoyStatus_LCL & JOY_LEFT)
+	//	  MouseReportData.X = -1;
 
-    if (gButtons & GBUTTON4) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_R;
-    }
+	//	if (JoyStatus_LCL & JOY_PRESS)
+	//	  MouseReportData.Button |= (1 << 0);
+	//}
 
-    if (gButtons & GBUTTON5) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_O;
-    }
+	/* Select the Mouse Report Endpoint */
+	Endpoint_SelectEndpoint(MOUSE_IN_EPADDR);
 
-    if (gButtons & GBUTTON6) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_C;
-    }
+	/* Check if Mouse Endpoint Ready for Read/Write */
+	if (Endpoint_IsReadWriteAllowed())
+	{
+		/* Write Mouse Report Data */
+		Endpoint_Write_Stream_LE(&MouseReportData, sizeof(MouseReportData), NULL);
 
-    if (gButtons & GBUTTON7) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_H;
-    }
+		/* Finalize the stream transfer to send the last packet */
+		Endpoint_ClearIN();
 
-    if (mButtons & MBUTTONSTART) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_I;
-    }
-
-    if (mButtons & MBUTTONVEFX) {
-      KeyboardReport->KeyCode[UsedKeyCodes++] = HID_KEYBOARD_SC_Y;
-    }
-
-    if (UsedKeyCodes)
-      KeyboardReport->Modifier = HID_KEYBOARD_MODIFIER_LEFTSHIFT;
-
-    *ReportSize = sizeof(USB_KeyboardReport_Data_t);
-    return false;
-  }
-  else {
-    return true;
-  }
+		/* Clear the report data afterwards */
+		memset(&MouseReportData, 0, sizeof(MouseReportData));
+	}
 }
-
-void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDInterfaceInfo,
-                                          const uint8_t ReportID,
-                                          const uint8_t ReportType,
-                                          const void* ReportData,
-                                          const uint16_t ReportSize){}
-
 
