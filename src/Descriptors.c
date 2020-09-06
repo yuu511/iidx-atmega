@@ -8,6 +8,7 @@
 
 /*
   Copyright 2020  Dean Camera (dean [at] fourwalledcubicle [dot] com)
+  Copyright 2010  Denver Gingerich (denver [at] ossguy [dot] com)
 
   Permission to use, copy, modify, distribute, and sell this
   software and its documentation for any purpose is hereby granted
@@ -47,24 +48,71 @@
  */
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM MouseReport[] =
 {
-	/* Use the HID class driver's standard Mouse report.
-	 *   Min X/Y Axis values: -1
-	 *   Max X/Y Axis values:  1
-	 *   Min physical X/Y Axis values (used to determine resolution): -1
-	 *   Max physical X/Y Axis values (used to determine resolution):  1
-	 *   Buttons: 3
-	 *   Absolute screen coordinates: false
-	 */
-	HID_DESCRIPTOR_MOUSE(-1, 1, -1, 1, 3, false)
+	HID_RI_USAGE_PAGE(8, 0x01), /* Generic Desktop */
+	HID_RI_USAGE(8, 0x02), /* Mouse */
+	HID_RI_COLLECTION(8, 0x01), /* Application */
+		HID_RI_USAGE(8, 0x01), /* Pointer */
+		HID_RI_COLLECTION(8, 0x00), /* Physical */
+			HID_RI_USAGE_PAGE(8, 0x09), /* Button */
+			HID_RI_USAGE_MINIMUM(8, 0x01),
+			HID_RI_USAGE_MAXIMUM(8, 0x03),
+			HID_RI_LOGICAL_MINIMUM(8, 0x00),
+			HID_RI_LOGICAL_MAXIMUM(8, 0x01),
+			HID_RI_REPORT_COUNT(8, 0x03),
+			HID_RI_REPORT_SIZE(8, 0x01),
+			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+			HID_RI_REPORT_COUNT(8, 0x01),
+			HID_RI_REPORT_SIZE(8, 0x05),
+			HID_RI_INPUT(8, HID_IOF_CONSTANT),
+			HID_RI_USAGE_PAGE(8, 0x01), /* Generic Desktop */
+			HID_RI_USAGE(8, 0x30), /* Usage X */
+			HID_RI_USAGE(8, 0x31), /* Usage Y */
+			HID_RI_LOGICAL_MINIMUM(8, -1),
+			HID_RI_LOGICAL_MAXIMUM(8, 1),
+			HID_RI_PHYSICAL_MINIMUM(8, -1),
+			HID_RI_PHYSICAL_MAXIMUM(8, 1),
+			HID_RI_REPORT_COUNT(8, 0x02),
+			HID_RI_REPORT_SIZE(8, 0x08),
+			HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
+		HID_RI_END_COLLECTION(0),
+	HID_RI_END_COLLECTION(0),
 };
 
 /** Same as the MouseReport structure, but defines the keyboard HID interface's report structure. */
 const USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] =
 {
-	/* Use the HID class driver's standard Keyboard report.
-	 *   Max simultaneous keys: 6
-	 */
-	HID_DESCRIPTOR_KEYBOARD(6)
+	HID_RI_USAGE_PAGE(8, 0x01), /* Generic Desktop */
+	HID_RI_USAGE(8, 0x06), /* Keyboard */
+	HID_RI_COLLECTION(8, 0x01), /* Application */
+		HID_RI_USAGE_PAGE(8, 0x07), /* Key Codes */
+		HID_RI_USAGE_MINIMUM(8, 0xE0), /* Keyboard Left Control */
+		HID_RI_USAGE_MAXIMUM(8, 0xE7), /* Keyboard Right GUI */
+		HID_RI_LOGICAL_MINIMUM(8, 0x00),
+		HID_RI_LOGICAL_MAXIMUM(8, 0x01),
+		HID_RI_REPORT_SIZE(8, 0x01),
+		HID_RI_REPORT_COUNT(8, 0x08),
+		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
+		HID_RI_REPORT_COUNT(8, 0x01),
+		HID_RI_REPORT_SIZE(8, 0x08),
+		HID_RI_INPUT(8, HID_IOF_CONSTANT),
+		HID_RI_USAGE_PAGE(8, 0x08), /* LEDs */
+		HID_RI_USAGE_MINIMUM(8, 0x01), /* Num Lock */
+		HID_RI_USAGE_MAXIMUM(8, 0x05), /* Kana */
+		HID_RI_REPORT_COUNT(8, 0x05),
+		HID_RI_REPORT_SIZE(8, 0x01),
+		HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+		HID_RI_REPORT_COUNT(8, 0x01),
+		HID_RI_REPORT_SIZE(8, 0x03),
+		HID_RI_OUTPUT(8, HID_IOF_CONSTANT),
+		HID_RI_LOGICAL_MINIMUM(8, 0x00),
+		HID_RI_LOGICAL_MAXIMUM(8, 0x65),
+		HID_RI_USAGE_PAGE(8, 0x07), /* Keyboard */
+		HID_RI_USAGE_MINIMUM(8, 0x00), /* Reserved (no event indicated) */
+		HID_RI_USAGE_MAXIMUM(8, 0x65), /* Keyboard Application */
+		HID_RI_REPORT_COUNT(8, 0x0A),
+		HID_RI_REPORT_SIZE(8, 0x08),
+		HID_RI_INPUT(8, HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
+	HID_RI_END_COLLECTION(0),
 };
 
 /** Device descriptor structure. This descriptor, located in FLASH memory, describes the overall
@@ -84,7 +132,7 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor =
 	.Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
 
 	.VendorID               = 0x03EB,
-	.ProductID              = 0x204D,
+	.ProductID              = 0x2040,
 	.ReleaseNumber          = VERSION_BCD(0,0,1),
 
 	.ManufacturerStrIndex   = STRING_ID_Manufacturer,
@@ -123,7 +171,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.InterfaceNumber        = INTERFACE_ID_Keyboard,
 			.AlternateSetting       = 0x00,
 
-			.TotalEndpoints         = 1,
+			.TotalEndpoints         = 2,
 
 			.Class                  = HID_CSCP_HIDClass,
 			.SubClass               = HID_CSCP_BootSubclass,
@@ -150,7 +198,17 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.EndpointAddress        = KEYBOARD_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = HID_EPSIZE,
-			.PollingIntervalMS      = 0x05
+			.PollingIntervalMS      = 0x01
+		},
+
+	.HID1_ReportOUTEndpoint =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = KEYBOARD_OUT_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = HID_EPSIZE,
+			.PollingIntervalMS      = 0x01
 		},
 
 	.HID2_MouseInterface =
@@ -187,7 +245,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor =
 			.EndpointAddress        = MOUSE_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = HID_EPSIZE,
-			.PollingIntervalMS      = 0x05
+			.PollingIntervalMS      = 0x01
 		}
 };
 
@@ -256,16 +314,15 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 		case HID_DTYPE_HID:
 			switch (wIndex)
 			{
-				case INTERFACE_ID_Keyboard:
+				case (INTERFACE_ID_Keyboard):
 					Address = &ConfigurationDescriptor.HID1_KeyboardHID;
 					Size    = sizeof(USB_HID_Descriptor_HID_t);
 					break;
-				case INTERFACE_ID_Mouse:
+				case (INTERFACE_ID_Mouse):
 					Address = &ConfigurationDescriptor.HID2_MouseHID;
 					Size    = sizeof(USB_HID_Descriptor_HID_t);
 					break;
 			}
-
 			break;
 		case HID_DTYPE_Report:
 			switch (wIndex)
