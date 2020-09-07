@@ -42,7 +42,8 @@ uint8_t checkEncoderOutputs(void)
   return state;
 }
 
-ISR(PCINT0_vect) {
+ISR(PCINT0_vect) 
+{
   uint8_t new_state = state_table[index][( (BIT_CHECK(~PINB,PB4) >> 4) | (BIT_CHECK(~PINB,PB5) >> 4) )];
   index = new_state & 0x7;
   state = new_state & ~(0x7);
