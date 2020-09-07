@@ -3,23 +3,22 @@
 
 #define TIMER_VAL 23
 
-#define CHECK_STATE(PortLetter, pinNum) \
-if (BIT_CHECK(buttons.isDebouncing,index)) { \
-  if ( (currentTime - buttons.last_pressed[index]) >= TIMER_VAL ) { \
-    if (!BIT_CHECK(PIN##PortLetter ,pinNum)) { \
-      BIT_SET(buttons.state,index); \
+#define CHECK_STATE(pinNum) \
+if (BIT_CHECK(buttons.isDebouncing,pinNum)) { \
+  if ( (currentTime - buttons.last_pressed[pinNum]) >= TIMER_VAL ) { \
+    if (BIT_CHECK(state ,pinNum)) { \
+      BIT_SET(buttons.state,pinNum); \
     } \
     else { \
-      BIT_CLEAR(buttons.state,index); \
+      BIT_CLEAR(buttons.state,pinNum); \
     } \
-    BIT_CLEAR(buttons.isDebouncing,index); \
+    BIT_CLEAR(buttons.isDebouncing,pinNum); \
   } \
 } \
-else if ( BIT_CHECK(~PIN##PortLetter , pinNum) != BIT_CHECK(buttons.state,index) ) { \
-  BIT_SET(buttons.isDebouncing,index); \
-  buttons.last_pressed[index] = currentTime; \
+else if ( BIT_CHECK(state , pinNum) != BIT_CHECK(buttons.state,pinNum) ) { \
+  BIT_SET(buttons.isDebouncing,pinNum); \
+  buttons.last_pressed[pinNum] = currentTime; \
 } \
-index++;
 
 
 static GAMEPLAY_BUTTONS buttons = {
@@ -30,11 +29,8 @@ static GAMEPLAY_BUTTONS buttons = {
 
 void setupGameplayButtons (void) 
 {
-  DDRD &= ~(GBUTTON_D); // PD 2,3,4,6,7
+  DDRD &= ~(GBUTTON_D); // PD 0,1,2,3,4,6,7
   PORTD |= GBUTTON_D; 
-
-  DDRB &= ~(GBUTTON_B); // PB 4,5
-  PORTB |= GBUTTON_B;
 }
 
 void setupGameplayLEDs (void) 
@@ -45,14 +41,14 @@ void setupGameplayLEDs (void)
 
 uint8_t gameplayButtonState(uint64_t currentTime) 
 {
-  uint8_t index = 0;
-  CHECK_STATE (D, 2);
-  CHECK_STATE (D, 3);
-  CHECK_STATE (D, 4);
-  CHECK_STATE (D, 6);
-  CHECK_STATE (D, 7);
-  CHECK_STATE (B, 4);
-  CHECK_STATE (B, 5);
+  uint8_t state = ~PIND; //could of put in a loop but :^)
+  CHECK_STATE (0); 
+  CHECK_STATE (1);
+  CHECK_STATE (2);
+  CHECK_STATE (3);
+  CHECK_STATE (4);
+  CHECK_STATE (6);
+  CHECK_STATE (7);
   return buttons.state;
 }
 

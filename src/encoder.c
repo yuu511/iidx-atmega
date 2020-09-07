@@ -26,31 +26,24 @@ static uint8_t index = 0;
 
 void setupEncoder(void)
 {
-  // BIT_CLEAR(DDRB,PB4);
-  // BIT_SET(PORTB,PB4);
+  BIT_CLEAR(DDRB,PB4);
+  BIT_SET(PORTB,PB4);
 
-  // BIT_CLEAR(DDRB,PB5);
-  // BIT_SET(PORTB,PB5);
-
-  // BIT_SET(PCMSK0, (PCINT4 | PCINT5) );
+  BIT_CLEAR(DDRB,PB5);
+  BIT_SET(PORTB,PB5);
+  
+  BIT_SET(PCICR, PCIE0);
+  PCMSK0 |= (PCINT4 | PCINT5);
 }
 
 // 0 = no change, 0x08 = CW, 0x10, CCW
 uint8_t checkEncoderOutputs(void)
 {
- // uint8_t current_state = 0;
-
- // if (!BIT_CHECK(PINB,PB4)) {
- //   current_state |= 0x1;
- // }
-
- // if (!BIT_CHECK(PINB,PB5)) {
- //   current_state |= 0x2;
- // }
-
- // uint8_t new_state = state_table[index][current_state];
- // index = new_state & 0x7;
- // state = new_state & ~(0x7);
   return state;
 }
 
+ISR(PCINT0_vect) {
+  uint8_t new_state = state_table[index][( (BIT_CHECK(~PINB,PB4) >> 4) | (BIT_CHECK(~PINB,PB5) >> 4) )];
+  index = new_state & 0x7;
+  state = new_state & ~(0x7);
+}
