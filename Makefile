@@ -18,14 +18,19 @@ F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
 TARGET       = iidx
-MODULES      = Descriptors button
+MODULES      = Descriptors button encoder
 SRC          = src/$(TARGET).c src/${MODULES:=.c} $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) 
 LUFA_PATH    = lufa/LUFA
-CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -Iinclude/
+CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/ -Iinclude/ 
 LD_FLAGS     =
 
 # Default target
-all:
+all: clean
+
+debug: debug_compile
+
+debug_compile: CC_FLAGS += -DDEBUG_MODE 
+debug_compiile: clean all
 
 # Include LUFA-specific DMBS extension modules
 DMBS_LUFA_PATH ?= $(LUFA_PATH)/Build/LUFA

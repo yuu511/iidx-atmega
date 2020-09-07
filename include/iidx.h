@@ -48,6 +48,14 @@
 
 	    #include <LUFA/Drivers/USB/USB.h>
 
+
+     /* hid report */
+      typedef struct {
+        uint8_t Modifier;
+        uint8_t Reserved;
+        uint8_t KeyCode[10];
+      } USB_ExtendedKeyboardReport_Data_t;
+
 	/* Function Prototypes: */
 		void SetupHardware(void);
         void SetupTimer(void);
