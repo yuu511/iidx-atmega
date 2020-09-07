@@ -1,7 +1,7 @@
 #include <button.h>
 #include <iidx.h>
 
-#define TIMER_VAL 23
+#define TIMER_VAL 2
 
 #define CHECK_STATE(pinNum) \
 if (BIT_CHECK(buttons.isDebouncing,pinNum)) { \

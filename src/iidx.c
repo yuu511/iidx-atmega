@@ -13,7 +13,7 @@ static USB_MouseReport_Data_t MouseReportData;
 void SetupTimer(void) 
 {
   TCCR1B |= ( 1 << WGM12) ; 
-  OCR1A = 24;
+  OCR1A = 240;
   TIMSK1 |= ( 1 << OCIE1A);
   TCCR1B |= ( 1 << CS10) | ( 1 << CS11);
 }

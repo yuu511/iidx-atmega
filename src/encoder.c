@@ -3,22 +3,20 @@
 #define START 0x0
 #define CW_START 0x1
 #define CCW_START 0x02
-#define CW_MID 0x03
-#define CCW_MID 0x04
-#define CW_END  0x05
-#define CCW_END  0x06
+#define MID 0x3
+#define CW_END  0x04
+#define CCW_END  0x05
 
 #define EMIT_CW 0x08
 #define EMIT_CCW 0x10
 
 static uint8_t state_table[7][4] = {
-  { START            , EMIT_CW  | CW_START , EMIT_CCW | CCW_START , START                }, //START
-  { EMIT_CCW | START , CW_START            , START                , EMIT_CW  | CW_MID    }, //CW_START
-  { EMIT_CW  | START , START               , CCW_START            , EMIT_CCW | CCW_MID   }, //CCW_START
-  { START            , EMIT_CCW | CCW_END  , EMIT_CW | CW_END     , CW_MID               }, //CW_MID
-  { START            , EMIT_CCW | CCW_END  , EMIT_CW | CW_END     , CCW_MID              }, //CCW_MID
-  { EMIT_CW  | START , START               , CW_END               , EMIT_CCW | CCW_MID   }, //CW_END
-  { EMIT_CCW | START , CCW_END             , START                , EMIT_CW  | CW_MID    } //CCW_END
+  { START            , CW_START            , CCW_START            , START             }, //START
+  { START            , CW_START            , START                , EMIT_CW  | MID    }, //CW_START
+  { START            , START               , CCW_START            , EMIT_CCW | MID    }, //CCW_START
+  { START            , CCW_END             , CW_END               , MID               }, //MID
+  { EMIT_CW | START  , START               , CW_END               , MID               }, //CW_END
+  { EMIT_CCW | START , CCW_END             , START                , MID               } //CCW_END
 };
 
 static uint8_t state = 0;
