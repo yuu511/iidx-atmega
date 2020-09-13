@@ -106,7 +106,7 @@ void EVENT_USB_Device_ControlRequest(void)
   			{
   				ReportData = (uint8_t*)&MouseReportData;
   				ReportSize = sizeof(MouseReportData);
-                resetState();
+                // resetState();
   			}
   
   			/* Write the report data to the control endpoint */
@@ -255,9 +255,9 @@ void Mouse_HID_Task(void)
     uint8_t enc = checkEncoderOutputs();
 	/* Check if board button is pressed, if so mouse mode enabled */
     if (enc & 0x08) 
-    MouseReportData.Y = -100;
+    MouseReportData.Y = -1;
     else if (enc & 0x10)
-    MouseReportData.Y = 100;
+    MouseReportData.Y = 1;
     else 
     MouseReportData.Y = 0;
 
@@ -279,7 +279,7 @@ void Mouse_HID_Task(void)
 		memset(&MouseReportData, 0, sizeof(MouseReportData));
 
         /* clear state*/
-        resetState();
+        // resetState();
     }
 }
 
