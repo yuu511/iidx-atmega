@@ -15,13 +15,13 @@
 
 #define GBUTTON_D 0b11011111 // PD 0,1,2,3,4,6,7
 
-#define GLED1  PF0
-#define GLED2  PF1
-#define GLED3  PF4
-#define GLED4  PF5
+#define GLED1  PF5
+#define GLED2  PF4
+#define GLED3  PF0
+#define GLED4  PF1
 #define GLED5  PF6
-#define GLED6  PB6
-#define GLED7  PB7
+#define GLED6  PB7
+#define GLED7  PB6
 #define GLED1_PORT PORTF
 #define GLED2_PORT PORTF
 #define GLED3_PORT PORTF

@@ -62,10 +62,10 @@ Gameplay Buttons 1-7 with LEDs <br>
 
 | Rectangle Button   | Atmega Pin (Input)  | Atmega Pin (LED) | Keycode Output
 | ------------- | ------------- | ------------- | ------------- |
-| Button 1 | PD0 | PF0 | S
-| Button 2 | PD1 | PF1 | Y
-| Button 3 | PD2 | PF4 | A
-| Button 4 | PD3 | PF5 | R
+| Button 1 | PD0 | PF5 | S
+| Button 2 | PD1 | PF4 | Y
+| Button 3 | PD2 | PF0 | A
+| Button 4 | PD3 | PF1 | R
 | Button 5 | PD4 | PF6 | O 
-| Button 6 | PD6 | PB6 | C
-| Button 7 | PD7 | PB7 | H
+| Button 6 | PD6 | PB7 | C
+| Button 7 | PD7 | PB6 | H

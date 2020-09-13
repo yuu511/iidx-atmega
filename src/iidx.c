@@ -24,7 +24,7 @@ int main(void)
   return 1;
 }
 
-// timer 1 : Increments every 0.1 ms.
+// timer 1 : Increments every 2.2 ms.
 void SetupTimer(void) 
 {
   TCCR1B |= ( 1 << WGM12) ; 
