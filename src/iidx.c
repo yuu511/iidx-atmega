@@ -9,15 +9,6 @@ static USB_ExtendedKeyboardReport_Data_t KeyboardReportData;
 /** Global structure to hold the current mouse interface HID report, for transmission to the host */
 static USB_MouseReport_Data_t MouseReportData;
 
-// timer 1 : Increments every 0.1 ms.
-void SetupTimer(void) 
-{
-  TCCR1B |= ( 1 << WGM12) ; 
-  OCR1A = 16000;
-  TIMSK1 |= ( 1 << OCIE1A);
-  TCCR1B |= ( 1 << CS10);
-}
-
 int main(void) 
 {
   SetupHardware();
@@ -32,6 +23,16 @@ int main(void)
 
   return 1;
 }
+
+// timer 1 : Increments every 0.1 ms.
+void SetupTimer(void) 
+{
+  TCCR1B |= ( 1 << WGM12) ; 
+  OCR1A = 16000;
+  TIMSK1 |= ( 1 << OCIE1A);
+  TCCR1B |= ( 1 << CS10);
+}
+
 
 void SetupHardware(void) 
 {
@@ -143,10 +144,9 @@ void EVENT_USB_Device_ControlRequest(void)
  */
 void Keyboard_HID_Task(void)
 {
-
-	/* Device must be connected and configured for the task to run */
-	if (USB_DeviceState != DEVICE_STATE_Configured)
-	  return;
+	 /* Device must be connected and configured for the task to run */
+	 if (USB_DeviceState != DEVICE_STATE_Configured)
+	   return;
 
      uint8_t gButtonStatus = gameplayButtonState(PROGRAM_EXECUTION_TIME);
      uint8_t mButtonStatus = metaButtonState();

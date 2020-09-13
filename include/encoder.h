@@ -6,6 +6,5 @@
 
 void setupEncoder(void);
 uint8_t checkEncoderOutputs(void);
-void resetState(void);
 
 #endif
