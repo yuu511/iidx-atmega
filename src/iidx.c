@@ -254,9 +254,9 @@ void Mouse_HID_Task(void)
     uint8_t enc = checkEncoderOutputs();
 	/* Check if board button is pressed, if so mouse mode enabled */
     if (enc & 0x08) 
-    MouseReportData.Y = -100;
+    MouseReportData.Y = 1;
     else if (enc & 0x10)
-    MouseReportData.Y = 100;
+    MouseReportData.Y = -1;
     else 
     MouseReportData.Y = 0;
 
