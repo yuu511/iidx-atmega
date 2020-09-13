@@ -21,15 +21,14 @@ DFU bootloader
 - Reset the board.
 - $ sudo make dfu
 
-Arduino bootloader (Arduino Leo)
-- $ chmod +x ./leonardo.sh
+Arduino bootloader (Arduino Leonardo)
 - $ ./leonardo.sh
 - Reset the board with the reset button.
 
 
 Hardware:
 ---
-- 1x Atmega32u4 development board<br> (Arduino Leonardo will work fine.)
+- 1x Atmega32u4 development board<br> (Arduino Leonardo will work fine)
 
 - 7x Rectangle buttons (OBSA-45UK-W-LN)<br> https://item.rakuten.co.jp/sanwadenshi/ilumb_100/
 
@@ -37,7 +36,7 @@ Hardware:
 
 - 2x Small square buttons (OBSF-24KK-S-K) <br> https://item.rakuten.co.jp/sanwadenshi/button_005/
 
-- 1x 600ppr encoder (https://www.amazon.com/gp/product/B00UTIFCVA/ref=ppx_yo_dt_b_asin_title_o02_s01?ie=UTF8&psc=1)
+- 1x 600ppr encoder <br> https://www.amazon.com/gp/product/B00UTIFCVA/ref=ppx_yo_dt_b_asin_title_o02_s01?ie=UTF8&psc=1
 
 
 Pinout:
@@ -59,7 +58,7 @@ Meta buttons (Start, VEFX)
 | VEFX  | PC7 | Z
 
 
-Gameplay Buttons 1-7 (With LEDs) <br>
+Gameplay Buttons 1-7 with LEDs <br>
 
 | Rectangle Button   | Atmega Pin (Input)  | Atmega Pin (LED) | Keycode Output
 | ------------- | ------------- | ------------- | ------------- |
