@@ -13,9 +13,9 @@ static USB_MouseReport_Data_t MouseReportData;
 void SetupTimer(void) 
 {
   TCCR1B |= ( 1 << WGM12) ; 
-  OCR1A = 24;
+  OCR1A = 16000;
   TIMSK1 |= ( 1 << OCIE1A);
-  TCCR1B |= ( 1 << CS10) | ( 1 << CS11);
+  TCCR1B |= ( 1 << CS10);
 }
 
 int main(void) 
@@ -106,6 +106,7 @@ void EVENT_USB_Device_ControlRequest(void)
   			{
   				ReportData = (uint8_t*)&MouseReportData;
   				ReportSize = sizeof(MouseReportData);
+                resetState();
   			}
   
   			/* Write the report data to the control endpoint */
@@ -247,8 +248,6 @@ void Keyboard_HID_Task(void)
  */
 void Mouse_HID_Task(void)
 {
-	// uint8_t JoyStatus_LCL = Joystick_GetStatus();
-
 	/* Device must be connected and configured for the task to run */
 	if (USB_DeviceState != DEVICE_STATE_Configured)
 	  return;
@@ -256,28 +255,13 @@ void Mouse_HID_Task(void)
     uint8_t enc = checkEncoderOutputs();
 	/* Check if board button is pressed, if so mouse mode enabled */
     if (enc & 0x08) 
-    MouseReportData.Y = -1;
+    MouseReportData.Y = -100;
     else if (enc & 0x10)
-    MouseReportData.Y = 1;
+    MouseReportData.Y = 100;
     else 
     MouseReportData.Y = 0;
 
     MouseReportData.Button = 0;
-	//if (Buttons_GetStatus() & BUTTONS_BUTTON1)
-	//{
-	//	if (JoyStatus_LCL & JOY_UP)
-	//	  MouseReportData.Y =  1;
-	//	else if (JoyStatus_LCL & JOY_DOWN)
-	//	  MouseReportData.Y = -1;
-
-	//	if (JoyStatus_LCL & JOY_RIGHT)
-	//	  MouseReportData.X =  1;
-	//	else if (JoyStatus_LCL & JOY_LEFT)
-	//	  MouseReportData.X = -1;
-
-	//	if (JoyStatus_LCL & JOY_PRESS)
-	//	  MouseReportData.Button |= (1 << 0);
-	//}
 
 	/* Select the Mouse Report Endpoint */
 	Endpoint_SelectEndpoint(MOUSE_IN_EPADDR);
@@ -293,6 +277,9 @@ void Mouse_HID_Task(void)
 
 		/* Clear the report data afterwards */
 		memset(&MouseReportData, 0, sizeof(MouseReportData));
+
+        /* clear state*/
+        resetState();
     }
 }
 

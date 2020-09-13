@@ -20,7 +20,6 @@ else if ( BIT_CHECK(state , pinNum) != BIT_CHECK(buttons.state,pinNum) ) { \
   buttons.last_pressed[pinNum] = currentTime; \
 } \
 
-
 static GAMEPLAY_BUTTONS buttons = {
   .state =  0,
   .isDebouncing = 0,
