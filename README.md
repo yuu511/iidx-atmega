@@ -21,7 +21,7 @@ DFU bootloader
 - Reset the board.
 - $ sudo make dfu
 
-Arduino bootloader (Arduino Leo)
+Arduino bootloader (Arduino Leonardo)
 - $ ./leonardo.sh
 - Reset the board with the reset button.
 
