@@ -22,14 +22,13 @@ DFU bootloader
 - $ sudo make dfu
 
 Arduino bootloader (Arduino Leo)
-- $ chmod +x ./leonardo.sh
 - $ ./leonardo.sh
 - Reset the board with the reset button.
 
 
 Hardware:
 ---
-- 1x Atmega32u4 development board<br> (Arduino Leonardo will work fine.)
+- 1x Atmega32u4 development board<br> (Arduino Leonardo will work fine)
 
 - 7x Rectangle buttons (OBSA-45UK-W-LN)<br> https://item.rakuten.co.jp/sanwadenshi/ilumb_100/
 
