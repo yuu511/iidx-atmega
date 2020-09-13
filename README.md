@@ -1,4 +1,9 @@
-Firmware for IIDX controller for atmega32u4 based boards.<br> Written in C99, using LUFA library for USB implementation.
+Firmware for atmega32u4 based boards implementing a IIDX controller.<br> 
+Written in C99, using LUFA library for USB implemenation.<br><br>
+When plugged in, device will function as a composite USB Keyboard + Mouse.<br>
+- Button presses will output a key, refer to the table below for button mapping to keys.
+- Turning the encoder clockwise will move the mouse cursor down, counter clockwise up.
+
 
 Dependencies:
 ---
@@ -39,29 +44,29 @@ Pinout:
 ---
 Encoder (Turntable)
 
-| Encoder Pin | Atmega Pin |
-| ------------- | ------------- |
-| DT  (A)   | PB4 |
-| CLK (B)   | PB5 |
+| Encoder Pin | Atmega Pin 
+| ------------- | ------------- 
+| DT  (A)   | PB4 | 
+| CLK (B)   | PB5 | 
 | VCC       | (connect to 5v-24v source)   |
 | GND       | (connect to ground)          |                    
 
 Meta buttons (Start, VEFX)
 
-| Square Button | Atmega Pin |
-| ------------- | ------------- |
-| Start | PE6|
-| VEFX  | PC7|
+| Square Button | Atmega Pin | Keycode Output
+| ------------- | ------------- | ------------- |
+| Start | PE6 | N 
+| VEFX  | PC7 | Z
 
 
 Gameplay Buttons 1-7<br>
 
-| Rectangle Button   | Atmega Pin 
-| ------------- | ------------- 
-| Button 1|PD0| 
-| Button 2|PD1|
-| Button 3|PD2| 
-| Button 4|PD3|
-| Button 5|PD4|
-| Button 6|PD6| 
-| Button 7|PD7|
+| Rectangle Button   | Atmega Pin  | Keycode Output
+| ------------- | ------------- | ------------- |
+| Button 1 | PD0 | S
+| Button 2 | PD1 | Y
+| Button 3 | PD2 | A
+| Button 4 | PD3 | R
+| Button 5 | PD4 | O 
+| Button 6 | PD6 | C
+| Button 7 | PD7 | H
