@@ -28,7 +28,7 @@ int main(void)
 void SetupTimer(void) 
 {
   TCCR1B |= ( 1 << WGM12) ; 
-  OCR1A = 16000;
+  OCR1A = 35200;
   TIMSK1 |= ( 1 << OCIE1A);
   TCCR1B |= ( 1 << CS10);
 }
