@@ -37,7 +37,7 @@ Hardware:
 
 - 2x Small square buttons (OBSF-24KK-S-K) <br> https://item.rakuten.co.jp/sanwadenshi/button_005/
 
-- 1x 600ppr encoder (https://www.amazon.com/gp/product/B00UTIFCVA/ref=ppx_yo_dt_b_asin_title_o02_s01?ie=UTF8&psc=1)
+- 1x 600ppr encoder <br> https://www.amazon.com/gp/product/B00UTIFCVA/ref=ppx_yo_dt_b_asin_title_o02_s01?ie=UTF8&psc=1
 
 
 Pinout:
@@ -59,7 +59,7 @@ Meta buttons (Start, VEFX)
 | VEFX  | PC7 | Z
 
 
-Gameplay Buttons 1-7 (With LEDs) <br>
+Gameplay Buttons 1-7 with LEDs <br>
 
 | Rectangle Button   | Atmega Pin (Input)  | Atmega Pin (LED) | Keycode Output
 | ------------- | ------------- | ------------- | ------------- |
