@@ -106,7 +106,7 @@ void EVENT_USB_Device_ControlRequest(void)
   			{
   				ReportData = (uint8_t*)&MouseReportData;
   				ReportSize = sizeof(MouseReportData);
-                resetState();
+                // resetState();
   			}
   
   			/* Write the report data to the control endpoint */
@@ -279,7 +279,7 @@ void Mouse_HID_Task(void)
 		memset(&MouseReportData, 0, sizeof(MouseReportData));
 
         /* clear state*/
-        resetState();
+        // resetState();
     }
 }
 

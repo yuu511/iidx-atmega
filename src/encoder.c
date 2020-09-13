@@ -39,12 +39,9 @@ void setupEncoder(void)
 // 0x08 = CW, 0x10, CCW
 uint8_t checkEncoderOutputs(void)
 {
-  return state;
-}
-
-void resetState(void)
-{
+  uint8_t ret = state;
   state &= 0x7;
+  return ret;
 }
 
 ISR(PCINT0_vect) 
