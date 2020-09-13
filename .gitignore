@@ -1,3 +1,13 @@
 tags
 build
 *.hex
+*.bin
+*.elf
+*.eep
+*.map
+*.lss
+*.sym
+*.a
+lufa
+obj
+lufa
