@@ -59,14 +59,14 @@ Meta buttons (Start, VEFX)
 | VEFX  | PC7 | Z
 
 
-Gameplay Buttons 1-7<br>
+Gameplay Buttons 1-7 (With LEDs) <br>
 
-| Rectangle Button   | Atmega Pin  | Keycode Output
-| ------------- | ------------- | ------------- |
-| Button 1 | PD0 | S
-| Button 2 | PD1 | Y
-| Button 3 | PD2 | A
-| Button 4 | PD3 | R
-| Button 5 | PD4 | O 
-| Button 6 | PD6 | C
-| Button 7 | PD7 | H
+| Rectangle Button   | Atmega Pin (Input)  | Atmega Pin (LED) | Keycode Output
+| ------------- | ------------- | ------------- | ------------- |
+| Button 1 | PD0 | PF0 | S
+| Button 2 | PD1 | PF1 | Y
+| Button 3 | PD2 | PF4 | A
+| Button 4 | PD3 | PF5 | R
+| Button 5 | PD4 | PF6 | O 
+| Button 6 | PD6 | PB6 | C
+| Button 7 | PD7 | PB7 | H
