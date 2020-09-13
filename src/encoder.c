@@ -19,7 +19,7 @@ static uint8_t state_table[6][4] = {
   { EMIT_CCW | START , CCW_END             , START                , EMIT_CW | MID     } //CCW_END
 };
 
-volatile uint8_t state = 0;
+static volatile uint8_t state = 0;
 
 void setupEncoder(void)
 {
