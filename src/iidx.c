@@ -74,7 +74,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
   
   /* Setup Keyboard HID Report Endpoints */
   ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
-  ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
+  // ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
   
   /* Setup Mouse HID Report Endpoint */
   ConfigSuccess &= Endpoint_ConfigureEndpoint(MOUSE_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
@@ -231,15 +231,6 @@ void Keyboard_HID_Task(void)
 		memset(&KeyboardReportData, 0, sizeof(KeyboardReportData));
 	}
 
-	/* Select the Keyboard LED Report Endpoint */
-	Endpoint_SelectEndpoint(KEYBOARD_OUT_EPADDR);
-
-	/* Check if Keyboard LED Endpoint Ready for Read/Write */
-	if (Endpoint_IsReadWriteAllowed())
-	{
-		/* Handshake the OUT Endpoint - clear endpoint and ready for next report */
-		Endpoint_ClearOUT();
-	}
 }
 
 /** Mouse task. This generates the next mouse HID report for the host, and transmits it via the
