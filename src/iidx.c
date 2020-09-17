@@ -74,7 +74,6 @@ void EVENT_USB_Device_ConfigurationChanged(void)
   
   /* Setup Keyboard HID Report Endpoints */
   ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
-  // ConfigSuccess &= Endpoint_ConfigureEndpoint(KEYBOARD_OUT_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
   
   /* Setup Mouse HID Report Endpoint */
   ConfigSuccess &= Endpoint_ConfigureEndpoint(MOUSE_IN_EPADDR, EP_TYPE_INTERRUPT, HID_EPSIZE, 1);
@@ -118,23 +117,23 @@ void EVENT_USB_Device_ControlRequest(void)
   		}
   
   		break;
-  	case HID_REQ_SetReport:
-  		if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
-  		{
-  			Endpoint_ClearSETUP();
+  	// case HID_REQ_SetReport:
+  	// 	if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE))
+  	// 	{
+  	// 		Endpoint_ClearSETUP();
   
-  			/* Wait until the LED report has been sent by the host */
-  			while (!(Endpoint_IsOUTReceived()))
-  			{
-  				if (USB_DeviceState == DEVICE_STATE_Unattached)
-  				  return;
-  			}
+  	// 		/* Wait until the LED report has been sent by the host */
+  	// 		while (!(Endpoint_IsOUTReceived()))
+  	// 		{
+  	// 			if (USB_DeviceState == DEVICE_STATE_Unattached)
+  	// 			  return;
+  	// 		}
   
-  			Endpoint_ClearOUT();
-  			Endpoint_ClearStatusStage();
-  		}
+  	// 		Endpoint_ClearOUT();
+  	// 		Endpoint_ClearStatusStage();
+  	// 	}
   
-  		break;
+  	// 	break;
   }
 }
 

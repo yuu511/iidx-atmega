@@ -11,12 +11,12 @@
 #define EMIT_CCW 0x10
 
 static uint8_t state_table[6][4] = {
-  { START            , EMIT_CW | CW_START  , EMIT_CCW | CCW_START , START             }, //START
+  { START            , CW_START            , CCW_START            , START             }, //START
   { START            , CW_START            , START                , EMIT_CW  | MID    }, //CW_START
   { START            , START               , CCW_START            , EMIT_CCW | MID    }, //CCW_START
-  { START            , EMIT_CCW | CCW_END  , EMIT_CW | CW_END     , MID               }, //MID
-  { EMIT_CW | START  , START               , CW_END               , EMIT_CCW | MID    }, //CW_END
-  { EMIT_CCW | START , CCW_END             , START                , EMIT_CW | MID     } //CCW_END
+  { START            , CCW_END             , CW_END               , MID               }, //MID
+  { EMIT_CW | START  , START               , CW_END               , MID               }, //CW_END
+  { EMIT_CCW | START , CCW_END             , START                , MID               } //CCW_END
 };
 
 static volatile uint8_t state = 0;
