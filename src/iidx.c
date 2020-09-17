@@ -28,7 +28,7 @@ int main(void)
 void SetupTimer(void) 
 {
   TCCR1B |= ( 1 << WGM12) ; 
-  OCR1A = 35200;
+  OCR1A = 35199;
   TIMSK1 |= ( 1 << OCIE1A);
   TCCR1B |= ( 1 << CS10);
 }
@@ -250,7 +250,7 @@ void Mouse_HID_Task(void)
     else 
     MouseReportData.Y = 0;
 
-    MouseReportData.Button = 0;
+    // MouseReportData.Button = 0;
 
 	/* Select the Mouse Report Endpoint */
 	Endpoint_SelectEndpoint(MOUSE_IN_EPADDR);
