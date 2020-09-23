@@ -24,11 +24,11 @@ int main(void)
   return 1;
 }
 
-// timer 1 : Increments every 2.2 ms.
+// timer 1 : Increments every .575 ms.
 void SetupTimer(void) 
 {
-  TCCR1B |= ( 1 << WGM12) ; 
-  OCR1A = 35200;
+  TCCR1B |= ( 1 << WGM12); 
+  OCR1A = 9199;
   TIMSK1 |= ( 1 << OCIE1A);
   TCCR1B |= ( 1 << CS10);
 }
