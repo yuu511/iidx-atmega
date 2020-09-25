@@ -11,7 +11,7 @@
 #define EMIT_CCW 0x10
 
 static uint8_t state_table[6][4] = {
-  { START            , CW_START            , CW_START             , START             }, //START
+  { START            , CW_START            , CCW_START             , START             }, //START
   { START            , CW_START            , START                , EMIT_CW  | MID    }, //CW_START
   { START            , START               , CCW_START            , EMIT_CCW | MID    }, //CCW_START
   { START            , CCW_END             , CW_END               , MID               }, //MID
